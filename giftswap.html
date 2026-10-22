@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GiftSwap — биржа обмена Telegram-подарками</title>
+<style>
+:root{--bg:#0a0b14;--bg2:#12142a;--glass:rgba(255,255,255,.06);--line:rgba(255,255,255,.12);--tx:#f2f3fb;--mut:#9a9fc0;--ac:#7c6cff;--ac2:#35d0ff;--ok:#3ddc97;--warn:#ffc24b;--bad:#ff6b7a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#0a0b14}}
+*{box-sizing:border-box;margin:0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:radial-gradient(900px 500px at 80% -10%,#2a1f6b55,transparent),radial-gradient(700px 500px at -10% 30%,#0e4a6b44,transparent),var(--bg);color:var(--tx);font-family:"Manrope","Segoe UI",system-ui,sans-serif;min-height:100vh;padding-bottom:84px}
+.wrap{max-width:520px;margin:0 auto;padding:16px}
+.glass{background:var(--glass);border:1px solid var(--line);border-radius:22px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.3px}
+.logo i{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,var(--ac),var(--ac2));display:grid;place-items:center;font-style:normal;font-size:18px}
+.live{font-size:12px;color:var(--ok);display:flex;align-items:center;gap:6px}
+.live b{width:8px;height:8px;border-radius:50%;background:var(--ok);animation:pulse 1.6s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 #3ddc9788}100%{box-shadow:0 0 0 10px #3ddc9700}}
+h1{font-size:30px;line-height:1.1;letter-spacing:-.8px;font-weight:800;margin-bottom:10px}
+.flow{display:flex;align-items:center;gap:8px;margin:16px 0;font-size:13px;color:var(--mut)}
+.flow span{padding:8px 12px;border-radius:14px;background:var(--glass);border:1px solid var(--line);white-space:nowrap}
+.flow em{font-style:normal;color:var(--ac2)}
+.btn{display:block;width:100%;border:0;border-radius:18px;padding:16px;font:inherit;font-weight:700;font-size:16px;color:#fff;cursor:pointer;transition:transform .15s,opacity .2s}
+.btn:active{transform:scale(.97)}
+.btn:focus-visible,.nav button:focus-visible,.chip:focus-visible,.g:focus-visible{outline:2px solid var(--ac2);outline-offset:2px}
+.btn.main{background:linear-gradient(135deg,var(--ac),#4f8bff 60%,var(--ac2));box-shadow:0 10px 30px #5b5cff55;font-size:18px;padding:20px}
+.btn.sec{background:var(--glass);border:1px solid var(--line)}
+.btn.ok{background:linear-gradient(135deg,#1fb87a,#3ddc9a);color:#04210f}
+.btn.no{background:#ff6b7a22;border:1px solid #ff6b7a66;color:var(--bad)}
+.btn[disabled]{opacity:.4;pointer-events:none}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.stats{padding:16px;margin:18px 0;display:grid;gap:10px}
+.stats div{display:flex;justify-content:space-between;font-size:15px}
+.stats .big{font-size:22px;font-weight:800}
+.sec-h{font-size:13px;color:var(--mut);margin:22px 0 10px;font-weight:600}
+.pop{display:grid;gap:8px}
+.pop div{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer}
+.pop b{flex:1;font-weight:600}.pop small{color:var(--mut)}
+.cats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.cats div{padding:16px;cursor:pointer}.cats strong{display:block;font-size:16px;margin:6px 0 2px}.cats small{color:var(--mut)}
+.art{width:100%;aspect-ratio:1;border-radius:18px;display:grid;place-items:center;font-size:56px;position:relative;overflow:hidden}
+.art::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,#ffffff40,transparent 50%)}
+.art span{position:relative;z-index:1;filter:drop-shadow(0 6px 10px #0006)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g{padding:10px;cursor:pointer;text-align:left;color:inherit;font:inherit;transition:transform .2s,border-color .2s}
+.g.sel{border-color:var(--ac2);box-shadow:0 0 0 2px #35d0ff55;transform:scale(1.02)}
+.g h4{font-size:14px;margin:8px 2px 2px}.g p{font-size:11px;color:var(--mut);margin:0 2px;line-height:1.4}
+.tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:8px;background:#7c6cff33;color:#b9b0ff;margin:4px 2px 0}
+.steps{display:flex;gap:6px;margin-bottom:14px}
+.steps i{flex:1;height:4px;border-radius:2px;background:var(--line)}.steps i.on{background:linear-gradient(90deg,var(--ac),var(--ac2))}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px;scrollbar-width:none}
+.chip{flex:none;padding:9px 14px;border-radius:14px;background:var(--glass);border:1px solid var(--line);color:var(--mut);font:inherit;font-size:13px;cursor:pointer}
+.chip.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.offer{padding:14px;margin-bottom:12px;display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;text-align:center}
+.offer .art{font-size:34px;border-radius:14px}
+.offer b{font-size:13px;display:block;margin-top:6px}.offer .ar{font-size:22px;color:var(--ac2)}
+.offer .meta{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--mut)}
+.offer .meta button{background:var(--ac);color:#fff;border:0;border-radius:12px;padding:8px 14px;font:inherit;font-weight:600;cursor:pointer}
+.deal{padding:16px}
+.deal h2{text-align:center;font-size:15px;color:var(--mut);margin-bottom:14px;font-weight:700}
+.pair{display:grid;grid-template-columns:1fr 54px 1fr;align-items:center;gap:6px}
+.side{text-align:center;font-size:12px}.side .art{font-size:40px;margin:8px 0}
+.side h4{font-size:14px;margin-bottom:6px}.side ul{list-style:none;padding:0;color:var(--mut);line-height:1.6}
+.swap{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--ac2));display:grid;place-items:center;font-size:24px;animation:spin 3s ease-in-out infinite}
+@keyframes spin{50%{transform:rotate(180deg)}}
+.st{display:inline-block;margin-top:8px;padding:5px 10px;border-radius:10px;font-size:12px;font-weight:600}
+.st.w{background:#ffc24b22;color:var(--warn)}.st.d{background:#3ddc9722;color:var(--ok)}
+.tl{margin:16px 0;display:grid;gap:10px}
+.tl div{display:flex;gap:10px;align-items:center;font-size:14px;color:var(--mut)}
+.tl div::before{content:"";width:12px;height:12px;border-radius:50%;border:2px solid var(--line);flex:none}
+.tl .on{color:var(--tx);font-weight:700}.tl .on::before{border-color:var(--warn);background:var(--warn)}
+.tl .done{color:var(--ok)}.tl .done::before{border-color:var(--ok);background:var(--ok)}
+.radar{height:200px;display:grid;place-items:center;position:relative}
+.radar i{position:absolute;border-radius:50%;border:1px solid var(--ac2);width:60px;height:60px;animation:rad 2s infinite;opacity:0}
+.radar i:nth-child(2){animation-delay:.6s}.radar i:nth-child(3){animation-delay:1.2s}
+@keyframes rad{0%{transform:scale(.4);opacity:.9}100%{transform:scale(3.2);opacity:0}}
+.radar span{font-size:42px}
+.prof{padding:22px;text-align:center}
+.ava{width:84px;height:84px;border-radius:50%;margin:0 auto 12px;background:linear-gradient(135deg,#ff8a5b,#7c6cff);display:grid;place-items:center;font-size:36px;font-weight:800}
+.pstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.pstats div{padding:12px 4px;border-radius:16px;background:var(--glass);border:1px solid var(--line)}
+.pstats b{display:block;font-size:20px}.pstats small{font-size:11px;color:var(--mut)}
+.rev{padding:14px;margin-top:10px;font-size:13px;line-height:1.5}.rev small{color:var(--mut)}
+.nav{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));z-index:5}
+.nav div{display:flex;width:100%;max-width:496px;padding:6px;gap:4px;background:#12142acc}
+.nav button{flex:1;background:none;border:0;color:var(--mut);font:inherit;font-size:11px;padding:8px 0;border-radius:16px;cursor:pointer;display:grid;gap:2px;justify-items:center}
+.nav button span{font-size:20px}.nav button.on{background:var(--glass);color:var(--tx)}
+.back{background:none;border:0;color:var(--mut);font:inherit;margin-bottom:10px;cursor:pointer}
+.hide{display:none}
+.empty{text-align:center;color:var(--mut);padding:30px 10px;font-size:14px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<nav class="nav"><div class="glass" id="nav"></div></nav>
+<script>
+var G=[
+{id:'cf',e:'🔥',n:'Chill Flame',nft:1,c:['#ff7a3d','#7a1d4b'],m:'Ember',bg:'Sunset',p:'Flames'},
+{id:'wi',e:'🍦',n:'Wise Ice Cream',nft:1,c:['#ffd6a5','#c06bff'],m:'Vanilla',bg:'Lilac',p:'Sprinkles'},
+{id:'hl',e:'❤️',n:'Heart Locket',nft:1,c:['#ff5c7a','#4a1b6d'],m:'Ruby',bg:'Rose',p:'Hearts'},
+{id:'sb',e:'🧸',n:'Snow Bear',nft:1,c:['#9fd8ff','#3a5bd9'],m:'Frost',bg:'Ice blue',p:'Snowflakes'},
+{id:'rc',e:'🚀',n:'Rocket',nft:0,c:['#35d0ff','#2a2a8a'],m:'Classic',bg:'Cosmos',p:'Stars'},
+{id:'rs',e:'🌹',n:'Rose',nft:0,c:['#ff6b8b','#7a1a3a'],m:'Classic',bg:'Crimson',p:'Petals'},
+{id:'ck',e:'🎂',n:'Cake',nft:0,c:['#ffc24b','#c2457a'],m:'Classic',bg:'Candy',p:'Candles'},
+{id:'tr',e:'🏆',n:'Trophy',nft:0,c:['#ffd23f','#8a5a00'],m:'Classic',bg:'Gold',p:'Laurel'}];
+var num={cf:4812,wi:7291,hl:3305,sb:1058,rc:0,rs:0,ck:0,tr:0};
+var g=function(i){return G.find(function(x){return x.id===i})};
+var art=function(x){return '<div class="art" style="background:linear-gradient(145deg,'+x.c[0]+','+x.c[1]+')"><span>'+x.e+'</span></div>'};
+var S={tab:'home',step:1,have:null,want:null,filter:'Все',deal:null};
+var offers=[['cf','wi','@mira_k',1],['wi','cf','@dmitry',1],['hl','sb','@ann_ton',1],['rc','rs','@gifter',0],['ck','tr','@lena',0],['sb','hl','@north',1],['rs','ck','@vlad',0],['tr','rc','@kate',0]];
+var counts={a:284,n:167,g:117};
+var $=function(s){return document.querySelector(s)};
+function nav(){var t=[['home','🏠','Главная'],['create','🔄','Обмен'],['active','📋','Биржа'],['me','👤','Профиль']];
+$('#nav').innerHTML=t.map(function(x){return '<button data-t="'+x[0]+'" class="'+(S.tab===x[0]?'on':'')+'"><span>'+x[1]+'</span>'+x[2]+'</button>'}).join('');
+document.querySelectorAll('#nav button').forEach(function(b){b.onclick=function(){go(b.dataset.t)}})}
+function go(t,f){S.tab=t;if(t==='create'&&!S.deal){S.step=1;S.have=null;S.want=null}if(f)S.filter=f;render();scrollTo(0,0)}
+function head(){return '<div class="top"><div class="logo"><i>⇄</i>GiftSwap</div><div class="live"><b></b><span id="lv">'+counts.a+' онлайн</span></div></div>'}
+function card(x,k){var d=x.nft?'<span class="tag">NFT</span>':'<span class="tag">Подарок</span>';
+return '<button class="g glass'+(k?' sel':'')+'" data-id="'+x.id+'">'+art(x)+'<h4>'+x.e+' '+x.n+(x.nft?' #'+num[x.id]:'')+'</h4><p>Модель: '+x.m+'<br>Фон: '+x.bg+'<br>Узор: '+x.p+'</p>'+d+'</button>'}
+function home(){var pop=[['cf',24,'ищут'],['wi',17,'ищут'],['hl',13,'ищут']];
+return head()+'<h1>Отдай своё.<br>Получи нужное.</h1><div class="flow"><span>Мой подарок</span><em>→</em><span>Что хочу</span><em>→</em><span>Совпадение</span></div>'+
+'<button class="btn main" id="c1">Создать обмен</button><div style="height:10px"></div><button class="btn sec" id="c2">Найти обмен</button>'+
+'<div class="glass stats"><div><span>🟢 Активных обменов</span><span class="big" id="n1">'+counts.a+'</span></div><div><span>💎 Обменов NFT</span><b id="n2">'+counts.n+'</b></div><div><span>🎁 Обменов подарками</span><b id="n3">'+counts.g+'</b></div></div>'+
+'<div class="cats"><div class="glass" data-f="NFT">💎<strong>NFT</strong><small>с номером, моделью и фоном</small></div><div class="glass" data-f="Подарки">🎁<strong>Подарки</strong><small>Быстрый обмен 1 на 1</small></div></div>'+
+'<div class="sec-h">Популярные запросы</div><div class="pop">'+pop.map(function(p){var x=g(p[0]);return '<div class="glass" data-w="'+x.id+'"><span style="font-size:24px">'+x.e+'</span><b>'+x.n+'</b><small>'+p[1]+' человек '+p[2]+'</small></div>'}).join('')+'</div>'}
+function create(){
+if(S.deal)return dealView();
+if(S.step===3)return head()+'<div class="glass radar"><i></i><i></i><i></i><span>'+g(S.have).e+'</span></div><h1 style="text-align:center;font-size:22px">Ищем встречное предложение…</h1><p class="empty">Нужен тот, у кого есть '+g(S.want).n+' и кто хочет '+g(S.have).n+'</p>';
+var h=S.step===1,list=G.filter(function(x){return h||x.id!==S.have});
+return head()+'<div class="steps"><i class="on"></i><i class="'+(h?'':'on')+'"></i></div><h1 style="font-size:24px">'+(h?'Что вы отдаёте?':'Что хотите получить?')+'</h1>'+
+(h?'':'<button class="back" id="bk">← Изменить свой подарок</button>')+
+'<div class="grid" style="margin:14px 0">'+list.map(function(x){return card(x,(h?S.have:S.want)===x.id)}).join('')+'</div>'+
+'<button class="btn main" id="nx" '+((h?S.have:S.want)?'':'disabled')+'>'+(h?'Дальше':'Найти обмен')+'</button>'}
+function active(){var f=S.filter,fs=['Все','NFT','Подарки','Популярные','Новые','Мои обмены'];
+var l=offers.filter(function(o){if(f==='NFT')return o[3];if(f==='Подарки')return!o[3];if(f==='Популярные')return o[0]==='cf'||o[0]==='wi'||o[0]==='hl'||o[1]==='cf';if(f==='Новые')return o[2]<'@m';return true});
+if(f==='Мои обмены')l=[['cf','wi','@you',1]];
+return head()+'<h1 style="font-size:24px;margin-bottom:12px">Активные обмены</h1><div class="chips">'+fs.map(function(x){return '<button class="chip'+(x===f?' on':'')+'" data-fl="'+x+'">'+x+'</button>'}).join('')+'</div>'+
+(l.length?l.map(function(o){var a=g(o[0]),b=g(o[1]);return '<div class="glass offer"><div>'+art(a)+'<b>'+a.e+' '+a.n+'</b></div><div class="ar">⇄</div><div>'+art(b)+'<b>'+b.e+' '+b.n+'</b></div><div class="meta"><span>'+o[2]+' · '+(o[3]?'💎 NFT':'🎁 подарок')+'</span><button data-o="'+o[0]+'|'+o[1]+'">Посмотреть обмен</button></div></div>'}).join(''):'<div class="empty">Здесь пока пусто. Создайте обмен — он появится в списке.</div>')}
+var D=null;
+function mkDeal(a,b){D={id:48291,a:a,b:b,aa:0,bb:0,ac:0,bc:0,done:0,run:0};S.deal=1}
+function side(u,id,got){var x=g(id);return '<div class="side"><b>👤 '+u+'</b>'+art(x).replace('class="art"','class="art" style="font-size:40px;margin:8px 0;"').replace('style="font-size:40px;margin:8px 0;" style="','style="font-size:40px;margin:8px 0;')+'<h4>'+x.e+' '+x.n+(x.nft?' #'+(id==='cf'?4812:num[id]):'')+'</h4><ul><li>'+x.m+'</li><li>'+x.bg+'</li><li>'+x.p+'</li></ul><span class="st '+(got?'d':'w')+'">'+(got?'🟢 Подарок получен':'🟡 Ожидаем подарок')+'</span></div>'}
+function dealView(){var d=D,a=g(d.a),b=g(d.b),agree=d.ac&&d.bc,both=d.aa&&d.bb;
+var stg=d.done?4:d.run?3:both?2:(agree?1:0);
+var T=['Оба подтверждают обмен','Передача подарков сервису','Обмен выполняется…','Обмен завершён'];
+var tl=T.map(function(t,i){return '<div class="'+(i<stg?'done':i===stg?'on':'')+'">'+(i<stg?'☑ ':'')+t+'</div>'}).join('');
+var act;
+if(d.done)act='<div class="empty" style="color:var(--ok)">☑ Обмен завершён. Каждый получил свой подарок.</div><button class="btn sec" id="fin">Готово</button>';
+else if(d.run)act='<div class="empty">🔄 Обмен выполняется…</div>';
+else if(!d.ac)act='<p style="text-align:center;font-size:14px;margin:6px 0 12px">Оба пользователя должны подтвердить обмен</p><div class="row"><button class="btn ok" id="ag">☑ Согласен</button><button class="btn no" id="rf">❌ Отказаться</button></div>';
+else if(!d.aa)act='<p style="text-align:center;font-size:14px;margin:6px 0 12px">Передайте '+a.n+' на аккаунт @GiftSwap_escrow</p><button class="btn main" id="sg">Я передал подарок</button>';
+else act='<div class="empty">Ждём подарок от @'+'mira_k</div>';
+return head()+'<button class="back" id="bk2">← Назад</button><div class="glass deal"><h2>ОБМЕН #'+d.id+'</h2><div class="pair">'+side('Вы (A)',d.a,d.aa)+'<div class="swap">⇄</div>'+side('@mira_k (B)',d.b,d.bb)+'</div><div class="tl">'+tl+'</div>'+act+'</div>'}
+function me(){return head()+'<div class="glass prof"><div class="ava">U</div><h1 style="font-size:22px;margin-bottom:4px">@username</h1><div style="color:var(--warn)">⭐ 4.9</div><div class="pstats"><div><b>127</b><small>успешных</small></div><div><b>3</b><small>активных</small></div><div><b>131</b><small>завершённых</small></div></div></div>'+
+'<div class="sec-h">Отзывы</div><div class="glass rev">«Передал вовремя, обмен прошёл за пару минут.»<br><small>@mira_k · ⭐ 5</small></div><div class="glass rev">«Всё честно, Chill Flame пришёл сразу.»<br><small>@dmitry · ⭐ 5</small></div><div class="glass rev">«Долго подтверждал, но итог хороший.»<br><small>@ann_ton · ⭐ 4</small></div>'}
+function render(){var v={home:home,create:create,active:active,me:me}[S.tab]();$('#app').innerHTML=v;nav();bind()}
+function bind(){var q=function(s,f){var e=$(s);if(e)e.onclick=f};
+q('#c1',function(){go('create')});q('#c2',function(){go('active')});
+document.querySelectorAll('[data-f]').forEach(function(e){e.onclick=function(){go('active',e.dataset.f)}});
+document.querySelectorAll('[data-w]').forEach(function(e){e.onclick=function(){S.step=1;S.have=null;S.want=e.dataset.w;S.deal=0;S.tab='create';render()}});
+document.querySelectorAll('.g').forEach(function(e){e.onclick=function(){if(S.step===1)S.have=e.dataset.id;else S.want=e.dataset.id;render()}});
+q('#nx',function(){if(S.step===1){S.step=2;if(!S.want||S.want===S.have)S.want=null;render()}else{S.step=3;render();setTimeout(function(){mkDeal(S.have,S.want);render()},2200)}});
+q('#bk',function(){S.step=1;render()});
+document.querySelectorAll('[data-fl]').forEach(function(e){e.onclick=function(){S.filter=e.dataset.fl;render()}});
+document.querySelectorAll('[data-o]').forEach(function(e){e.onclick=function(){var p=e.dataset.o.split('|');mkDeal(p[0],p[1]);go('create')}});
+q('#bk2',function(){S.deal=0;go('active')});q('#fin',function(){S.deal=0;S.step=1;go('home')});
+q('#rf',function(){S.deal=0;go('active')});
+q('#ag',function(){D.ac=1;render();setTimeout(function(){D.bc=1;render()},900)});
+q('#sg',function(){D.aa=1;render();setTimeout(function(){D.bb=1;D.run=1;render();setTimeout(function(){D.run=0;D.done=1;render()},2000)},1200)})}
+setInterval(function(){var d=Math.random()<.5?1:-1;counts.a+=d;if(Math.random()<.5)counts.n+=d;else counts.g+=d;counts.g=counts.a-counts.n;var l=$('#lv');if(l)l.textContent=counts.a+' онлайн';
+[['#n1',counts.a],['#n2',counts.n],['#n3',counts.g]].forEach(function(x){var e=$(x[0]);if(e)e.textContent=x[1]})},3000);
+try{if(window.Telegram&&Telegram.WebApp){Telegram.WebApp.ready();Telegram.WebApp.expand()}}catch(e){}
+render();
+</script>
+</body>
+</html>
